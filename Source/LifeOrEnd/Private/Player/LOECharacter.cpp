@@ -2,16 +2,18 @@
 
 
 #include "Player/LOECharacter.h"
-
+#include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
 
 // Sets default values
-ALOECharacter::ALOECharacter(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer.SetDefaultSubobjectClass<ULOECharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
+	:Super(ObjInit.SetDefaultSubobjectClass<ULOECharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CrouchTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchTimelineComponent"));
+	
 	bWantsRunning = false;
 }
 
@@ -19,7 +21,13 @@ ALOECharacter::ALOECharacter(const FObjectInitializer& ObjectInitializer)
 void ALOECharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UpdateCharacterHeightTrack.BindDynamic(this, &ALOECharacter::UpdateCharacterHeight);
+	SetupCrouchCurve();
+	if (CrouchHeightCurve)
+	{
+		CrouchTimelineComp->AddInterpFloat(CrouchHeightCurve, UpdateCharacterHeightTrack);
+	}
 }
 
 // Called every frame
@@ -42,6 +50,8 @@ void ALOECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ALOECharacter::StopJumping);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ALOECharacter::StartRun);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &ALOECharacter::StopRun);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ALOECharacter::StartCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ALOECharacter::StopCrouch);
 }
 
 void ALOECharacter::MoveForward(float Amount)
@@ -71,3 +81,26 @@ bool ALOECharacter::IsRunning() const
 	return bWantsRunning && !GetVelocity().IsZero();
 }
 
+void ALOECharacter::SetupCrouchCurve()
+{
+	const float CurrentHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FRichCurveKey FirstKey = FRichCurveKey(0.0f, CurrentHeight);
+	const FRichCurveKey SecondKey = FRichCurveKey(CrouchAnimationTime, CrouchHeight);
+	const TArray<FRichCurveKey> RichCurveKeys = {FirstKey, SecondKey};
+	CrouchHeightCurve->FloatCurve.SetKeys(RichCurveKeys);
+}
+
+void ALOECharacter::StartCrouch()
+{
+	CrouchTimelineComp->Play();
+}
+
+void ALOECharacter::StopCrouch()
+{
+	CrouchTimelineComp->Reverse();
+}
+
+void ALOECharacter::UpdateCharacterHeight(float Height)
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(Height);
+}

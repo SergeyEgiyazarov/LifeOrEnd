@@ -8,10 +8,10 @@ float ULOECharacterMovementComponent::GetMaxSpeed() const
 {
 	float MaxSpeed = Super::GetMaxSpeed();
 
-	const ALOECharacter* LOECharacterOwner = Cast<ALOECharacter>(GetOwner());
-	if (LOECharacterOwner)
+	const ALOECharacter* LCharacterOwner = Cast<ALOECharacter>(GetOwner());
+	if (LCharacterOwner)
 	{
-		if(LOECharacterOwner->IsRunning())
+		if(LCharacterOwner->IsRunning())
 		{
 			MaxSpeed *= 1.8f;
 		}
