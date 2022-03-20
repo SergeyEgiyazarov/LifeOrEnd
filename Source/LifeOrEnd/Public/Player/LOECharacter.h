@@ -13,7 +13,7 @@ class LIFEOREND_API ALOECharacter : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	ALOECharacter();
+	ALOECharacter(const FObjectInitializer& ObjInit);
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,8 +26,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	bool IsRunning() const;
+
 private:
+	bool bWantsRunning;
+	
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
+	void StartRun();
+	void StopRun();
 
 };
