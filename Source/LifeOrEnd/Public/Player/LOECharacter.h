@@ -7,6 +7,14 @@
 #include "Components/TimelineComponent.h"
 #include "LOECharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EMovementState : uint8
+{
+	Idle = 0,
+	Running,
+	Crouch
+};
+
 UCLASS()
 class LIFEOREND_API ALOECharacter : public ACharacter
 {
@@ -27,7 +35,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	EMovementState CurrentMovementState;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Crouch", meta = (ClampMin = 20.0f, ClampMax = 100.0f))
 	float CrouchHeight = 55.0f;
 	//Time animation for crouch
@@ -42,12 +52,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	bool IsRunning() const;
+	
+	EMovementState GetMovementState() const;
 
 private:
-	bool bWantsRunning;
-
 	//Movement functions
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);

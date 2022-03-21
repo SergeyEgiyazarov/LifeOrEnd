@@ -13,8 +13,8 @@ ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
 	PrimaryActorTick.bCanEverTick = true;
 
 	CrouchTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchTimelineComponent"));
-	
-	bWantsRunning = false;
+
+	CurrentMovementState = EMovementState::Idle;
 }
 
 // Called when the game starts or when spawned
@@ -23,9 +23,10 @@ void ALOECharacter::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateCharacterHeightTrack.BindDynamic(this, &ALOECharacter::UpdateCharacterHeight);
-	SetupCrouchCurve();
+	
 	if (CrouchHeightCurve)
 	{
+		SetupCrouchCurve();
 		CrouchTimelineComp->AddInterpFloat(CrouchHeightCurve, UpdateCharacterHeightTrack);
 	}
 }
@@ -66,19 +67,22 @@ void ALOECharacter::MoveRight(float Amount)
 
 void ALOECharacter::StartRun()
 {
-	bWantsRunning = true;
+	if (CurrentMovementState == EMovementState::Crouch)
+	{
+		StopCrouch();
+	}
+	CurrentMovementState = EMovementState::Running;
 }
 
 void ALOECharacter::StopRun()
 {
-	bWantsRunning = false;
+	CurrentMovementState  = EMovementState::Idle;
 }
 
-bool ALOECharacter::IsRunning() const
+EMovementState ALOECharacter::GetMovementState() const
 {
-	if (!GetCharacterMovement()) return false;
-
-	return bWantsRunning && !GetVelocity().IsZero();
+	if (!GetCharacterMovement() && GetVelocity().IsZero()) return EMovementState::Idle;
+	return CurrentMovementState;
 }
 
 void ALOECharacter::SetupCrouchCurve()
@@ -92,11 +96,15 @@ void ALOECharacter::SetupCrouchCurve()
 
 void ALOECharacter::StartCrouch()
 {
+	if(CurrentMovementState != EMovementState::Idle) return;
+	CurrentMovementState = EMovementState::Crouch;
 	CrouchTimelineComp->Play();
 }
 
 void ALOECharacter::StopCrouch()
 {
+	if(CurrentMovementState != EMovementState::Crouch) return;
+	CurrentMovementState = EMovementState::Idle;
 	CrouchTimelineComp->Reverse();
 }
 

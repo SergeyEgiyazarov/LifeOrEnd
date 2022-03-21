@@ -11,9 +11,18 @@ float ULOECharacterMovementComponent::GetMaxSpeed() const
 	const ALOECharacter* LCharacterOwner = Cast<ALOECharacter>(GetOwner());
 	if (LCharacterOwner)
 	{
-		if(LCharacterOwner->IsRunning())
+		const auto State = LCharacterOwner->GetMovementState();
+
+		switch (State)
 		{
+		case EMovementState::Running:
 			MaxSpeed *= 1.8f;
+			break;
+		case EMovementState::Crouch:
+			MaxSpeed *= 0.5f;
+			break;
+		default:
+			break;
 		}
 	}
 
