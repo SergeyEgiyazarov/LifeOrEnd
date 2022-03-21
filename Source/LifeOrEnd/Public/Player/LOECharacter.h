@@ -7,6 +7,8 @@
 #include "Components/TimelineComponent.h"
 #include "LOECharacter.generated.h"
 
+class UCameraComponent;
+
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
@@ -25,6 +27,9 @@ public:
 	ALOECharacter(const FObjectInitializer& ObjInit);
 	
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UCameraComponent* CameraComponent;
+	
 	//TimelineComponent to animate crouch
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement|Crouch")
 	UTimelineComponent* CrouchTimelineComp;

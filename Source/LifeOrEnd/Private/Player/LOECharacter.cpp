@@ -2,6 +2,8 @@
 
 
 #include "Player/LOECharacter.h"
+
+#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
 
@@ -11,6 +13,17 @@ ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->SetupAttachment(RootComponent);
+	CameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
+	CameraComponent->bUsePawnControlRotation = true;
+	
+	GetMesh()->SetupAttachment(CameraComponent);
+	GetMesh()->bOnlyOwnerSee = true;
+	GetMesh()->bOwnerNoSee = false;
+	GetMesh()->bCastDynamicShadow = false;
+	GetMesh()->CastShadow = false;
 
 	CrouchTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchTimelineComponent"));
 
