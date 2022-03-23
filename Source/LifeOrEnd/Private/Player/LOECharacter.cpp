@@ -3,6 +3,8 @@
 
 #include "Player/LOECharacter.h"
 
+#include "LOEBaseItem.h"
+#include "Weapons/LOEBaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
@@ -124,4 +126,17 @@ void ALOECharacter::StopCrouch()
 void ALOECharacter::UpdateCharacterHeight(float Height)
 {
 	GetCapsuleComponent()->SetCapsuleHalfHeight(Height);
+}
+
+void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
+{
+	if(!ItemWeapon) return;
+	//const ALOEBaseWeapon* Weapon = Cast<ALOEBaseWeapon>(ItemWeapon->ItemActor);
+	const auto Weapon = ItemWeapon->ItemActor;
+	if (Weapon)
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<ALOEBaseWeapon>(Weapon);
+		const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
+		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRule, "GripPoint");
+	}
 }

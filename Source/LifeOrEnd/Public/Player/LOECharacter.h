@@ -8,6 +8,8 @@
 #include "LOECharacter.generated.h"
 
 class UCameraComponent;
+class ALOEBaseWeapon;
+class ULOEBaseItem;
 
 UENUM(BlueprintType)
 enum class EMovementState : uint8
@@ -60,6 +62,12 @@ public:
 	
 	EMovementState GetMovementState() const;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	ALOEBaseWeapon* CurrentWeapon;
+
+	//Spawn weapon and attach to socket
+	UFUNCTION(BlueprintCallable)
+	void SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon);
 private:
 	//Movement functions
 	void MoveForward(float Amount);
