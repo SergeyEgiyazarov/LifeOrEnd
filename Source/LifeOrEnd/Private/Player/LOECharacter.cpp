@@ -2,12 +2,12 @@
 
 
 #include "Player/LOECharacter.h"
-
-#include "LOEBaseItem.h"
+#include "Items/LOEBaseItem.h"
 #include "Weapons/LOEBaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
+#include "Components/LOEWeaponComponent.h"
 
 // Sets default values
 ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
@@ -26,9 +26,12 @@ ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
 	GetMesh()->bOwnerNoSee = false;
 	GetMesh()->bCastDynamicShadow = false;
 	GetMesh()->CastShadow = false;
+	
+	WeaponComponent = CreateDefaultSubobject<ULOEWeaponComponent>(TEXT("WeaponComponent"));
 
 	CrouchTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchTimelineComponent"));
 
+	//Default Movement State Player 
 	CurrentMovementState = EMovementState::Idle;
 }
 
@@ -130,7 +133,8 @@ void ALOECharacter::UpdateCharacterHeight(float Height)
 
 void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 {
-	if(!ItemWeapon) return;
+	WeaponComponent->SpawnWeapon(ItemWeapon);
+	/*if(!ItemWeapon) return;
 	//const ALOEBaseWeapon* Weapon = Cast<ALOEBaseWeapon>(ItemWeapon->ItemActor);
 	const auto Weapon = ItemWeapon->ItemActor;
 	if (Weapon)
@@ -138,5 +142,5 @@ void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 		CurrentWeapon = GetWorld()->SpawnActor<ALOEBaseWeapon>(Weapon);
 		const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
 		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRule, "GripPoint");
-	}
+	}*/
 }

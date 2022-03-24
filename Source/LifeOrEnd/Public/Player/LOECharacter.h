@@ -10,6 +10,7 @@
 class UCameraComponent;
 class ALOEBaseWeapon;
 class ULOEBaseItem;
+class ULOEWeaponComponent;
 
 UENUM(BlueprintType)
 enum class EMovementState : uint8
@@ -29,8 +30,11 @@ public:
 	ALOECharacter(const FObjectInitializer& ObjInit);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	ULOEWeaponComponent* WeaponComponent;
 	
 	//TimelineComponent to animate crouch
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement|Crouch")
