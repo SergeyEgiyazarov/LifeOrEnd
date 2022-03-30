@@ -8,6 +8,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
 #include "Components/LOEWeaponComponent.h"
+#include "InteractiveObjects/LOEInteractionInterface.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
@@ -54,6 +56,8 @@ void ALOECharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	InteractTrace();
+
 }
 
 // Called to bind functionality to input
@@ -71,6 +75,8 @@ void ALOECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &ALOECharacter::StopRun);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ALOECharacter::StartCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ALOECharacter::StopCrouch);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ALOECharacter::InteractWithObject);
 }
 
 void ALOECharacter::MoveForward(float Amount)
@@ -143,4 +149,33 @@ void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 		const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
 		CurrentWeapon->AttachToComponent(GetMesh(), AttachmentRule, "GripPoint");
 	}*/
+}
+
+void ALOECharacter::InteractTrace()
+{
+	FHitResult Hit;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());
+
+	FVector StartTrace;
+	FRotator RotatorTrace;
+	GetController()->GetPlayerViewPoint(StartTrace, RotatorTrace);
+	FVector EndTrace = StartTrace + RotatorTrace.Vector() * 200.0f;
+	
+	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_GameTraceChannel1, CollisionParams);
+	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.0f);
+	if (Hit.bBlockingHit)
+	{
+		DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(5.0f, 5.0f, 5.0f), FColor::Red, false, 1.5f);
+	}
+	LookAtActor = Cast<ILOEInteractionInterface>(Hit.GetActor());
+	
+}
+
+void ALOECharacter::InteractWithObject()
+{
+	if (LookAtActor)
+	{
+		LookAtActor->InteractWithMe(this);
+	}
 }

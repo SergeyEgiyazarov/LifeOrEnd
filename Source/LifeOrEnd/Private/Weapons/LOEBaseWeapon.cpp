@@ -11,6 +11,7 @@ ALOEBaseWeapon::ALOEBaseWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	SetRootComponent(Mesh);
 	Mesh->bCastDynamicShadow = false;
 	Mesh->CastShadow = false;
 }

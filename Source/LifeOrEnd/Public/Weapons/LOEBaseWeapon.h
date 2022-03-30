@@ -24,4 +24,5 @@ protected:
 public:	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* Mesh;
+
 };

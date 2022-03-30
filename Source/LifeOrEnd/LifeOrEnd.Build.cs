@@ -17,7 +17,9 @@ public class LifeOrEnd : ModuleRules
 			"LifeOrEnd/Public/Components",
 			"LifeOrEnd/Public/Player",
 			"LifeOrEnd/Public/Items",
-			"LifeOrEnd/Public/Weapons"
+			"LifeOrEnd/Public/Weapons",
+			"LifeOrEnd/Public/InteractiveObjects",
+			"LifeOrEnd/Public/UI"
 		});
 
 		// Uncomment if you are using Slate UI

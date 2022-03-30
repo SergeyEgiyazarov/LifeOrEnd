@@ -11,6 +11,7 @@ class UCameraComponent;
 class ALOEBaseWeapon;
 class ULOEBaseItem;
 class ULOEWeaponComponent;
+class ILOEInteractionInterface;
 
 UENUM(BlueprintType)
 enum class EMovementState : uint8
@@ -73,6 +74,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon);
 private:
+
+	ILOEInteractionInterface* LookAtActor;
+	
 	//Movement functions
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
@@ -83,5 +87,8 @@ private:
 	void SetupCrouchCurve();
 	UFUNCTION()
 	void UpdateCharacterHeight(float Height);
+
+	void InteractTrace();
+	void InteractWithObject();
 
 };
