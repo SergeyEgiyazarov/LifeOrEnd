@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/HUD.h"
-#include "LOEGameHUD.generated.h"
+#include "UI/LOEBaseWidget.h"
+#include "LOEInventoryWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LIFEOREND_API ALOEGameHUD : public AHUD
+class LIFEOREND_API ULOEInventoryWidget : public ULOEBaseWidget
 {
 	GENERATED_BODY()
-
+	
 };

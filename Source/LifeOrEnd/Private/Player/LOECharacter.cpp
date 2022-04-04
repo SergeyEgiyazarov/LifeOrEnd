@@ -8,8 +8,12 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/LOECharacterMovementComponent.h"
 #include "Components/LOEWeaponComponent.h"
+#include "Components/LOEHealthComponent.h"
 #include "InteractiveObjects/LOEInteractionInterface.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/Controller.h"
+
+DEFINE_LOG_CATEGORY_STATIC(PlayerCharacterLog, All, All);
 
 // Sets default values
 ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
@@ -28,7 +32,8 @@ ALOECharacter::ALOECharacter(const FObjectInitializer& ObjInit)
 	GetMesh()->bOwnerNoSee = false;
 	GetMesh()->bCastDynamicShadow = false;
 	GetMesh()->CastShadow = false;
-	
+
+	HealthComponent = CreateDefaultSubobject<ULOEHealthComponent>(TEXT("HealthComponent"));
 	WeaponComponent = CreateDefaultSubobject<ULOEWeaponComponent>(TEXT("WeaponComponent"));
 
 	CrouchTimelineComp = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchTimelineComponent"));
@@ -42,13 +47,18 @@ void ALOECharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	HealthComponent->OnDeath.AddUObject(this, &ALOECharacter::OnDeath);
+	HealthComponent->OnHealthChange.AddUObject(this, &ALOECharacter::OnHealthChange);
+	LandedDelegate.AddDynamic(this, &ALOECharacter::OnGroundLanded);
+
+	/*Bind crouch animation*/
 	UpdateCharacterHeightTrack.BindDynamic(this, &ALOECharacter::UpdateCharacterHeight);
-	
 	if (CrouchHeightCurve)
 	{
 		SetupCrouchCurve();
 		CrouchTimelineComp->AddInterpFloat(CrouchHeightCurve, UpdateCharacterHeightTrack);
 	}
+	/**/
 }
 
 // Called every frame
@@ -59,6 +69,12 @@ void ALOECharacter::Tick(float DeltaTime)
 	InteractTrace();
 
 }
+
+void ALOECharacter::OnHealthChange(float Health)
+{
+	UE_LOG(PlayerCharacterLog, Display, TEXT("Health changed: %f"), Health);
+}
+
 
 // Called to bind functionality to input
 void ALOECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -137,6 +153,30 @@ void ALOECharacter::UpdateCharacterHeight(float Height)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(Height);
 }
 
+void ALOECharacter::OnGroundLanded(const FHitResult& Hit)
+{
+	const auto FallVelocityZ = -GetCharacterMovement()->Velocity.Z;
+	UE_LOG(PlayerCharacterLog, Display, TEXT("Fall Velocity: %f"), FallVelocityZ);
+
+	if (FallVelocityZ < LandedDamageVelocity.X) return;
+
+	const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+	UE_LOG(PlayerCharacterLog, Display, TEXT("Take damage: %f"), FinalDamage);
+	TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
+}
+
+void ALOECharacter::OnDeath()
+{
+	UE_LOG(PlayerCharacterLog, Display, TEXT("Player: %s is dead"), *GetName());
+
+	GetCharacterMovement()->DisableMovement();
+	SetLifeSpan(3.0f);
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
+}
+
 void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 {
 	WeaponComponent->SpawnWeapon(ItemWeapon);
@@ -153,6 +193,7 @@ void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 
 void ALOECharacter::InteractTrace()
 {
+	if(!Controller) return;
 	FHitResult Hit;
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
@@ -164,11 +205,20 @@ void ALOECharacter::InteractTrace()
 	
 	GetWorld()->LineTraceSingleByChannel(Hit, StartTrace, EndTrace, ECollisionChannel::ECC_GameTraceChannel1, CollisionParams);
 	DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor::Red, false, 1.0f);
+	
 	if (Hit.bBlockingHit)
 	{
 		DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(5.0f, 5.0f, 5.0f), FColor::Red, false, 1.5f);
+		LookAtActor = Cast<ILOEInteractionInterface>(Hit.GetActor());
+		if (LookAtActor)
+		{
+			isLookAt = true;
+		}
 	}
-	LookAtActor = Cast<ILOEInteractionInterface>(Hit.GetActor());
+	else
+	{
+		isLookAt = false;
+	}
 	
 }
 
@@ -179,3 +229,4 @@ void ALOECharacter::InteractWithObject()
 		LookAtActor->InteractWithMe(this);
 	}
 }
+

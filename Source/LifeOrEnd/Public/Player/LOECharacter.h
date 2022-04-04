@@ -11,6 +11,7 @@ class UCameraComponent;
 class ALOEBaseWeapon;
 class ULOEBaseItem;
 class ULOEWeaponComponent;
+class ULOEHealthComponent;
 class ILOEInteractionInterface;
 
 UENUM(BlueprintType)
@@ -35,21 +36,30 @@ protected:
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	ULOEHealthComponent* HealthComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	ULOEWeaponComponent* WeaponComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	EMovementState CurrentMovementState;
 	
 	//TimelineComponent to animate crouch
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement|Crouch")
 	UTimelineComponent* CrouchTimelineComp;
 
 	FOnTimelineFloat UpdateCharacterHeightTrack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	FVector2D LandedDamageVelocity = FVector2D(700.0f, 1000.0f);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	EMovementState CurrentMovementState;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement|Crouch", meta = (ClampMin = 20.0f, ClampMax = 100.0f))
 	float CrouchHeight = 55.0f;
 	//Time animation for crouch
@@ -73,6 +83,9 @@ public:
 	//Spawn weapon and attach to socket
 	UFUNCTION(BlueprintCallable)
 	void SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon);
+
+	UPROPERTY(BlueprintReadWrite)
+	bool isLookAt = false;
 private:
 
 	ILOEInteractionInterface* LookAtActor;
@@ -87,6 +100,11 @@ private:
 	void SetupCrouchCurve();
 	UFUNCTION()
 	void UpdateCharacterHeight(float Height);
+	
+	void OnDeath();
+	void OnHealthChange(float Health);
+	UFUNCTION()
+	void OnGroundLanded(const FHitResult& Hit);
 
 	void InteractTrace();
 	void InteractWithObject();
