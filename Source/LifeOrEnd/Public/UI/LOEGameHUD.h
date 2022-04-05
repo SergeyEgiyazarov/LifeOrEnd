@@ -14,4 +14,9 @@ class LIFEOREND_API ALOEGameHUD : public AHUD
 {
 	GENERATED_BODY()
 
+public:
+	virtual void DrawHUD() override;
+
+private:
+	void DrawCrossHair();
 };

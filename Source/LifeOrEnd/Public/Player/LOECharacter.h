@@ -106,6 +106,7 @@ private:
 	UFUNCTION()
 	void OnGroundLanded(const FHitResult& Hit);
 
+	//Line trace for check interact object
 	void InteractTrace();
 	void InteractWithObject();
 

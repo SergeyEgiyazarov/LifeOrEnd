@@ -191,6 +191,7 @@ void ALOECharacter::SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon)
 	}*/
 }
 
+//Line trace for check interact object
 void ALOECharacter::InteractTrace()
 {
 	if(!Controller) return;
