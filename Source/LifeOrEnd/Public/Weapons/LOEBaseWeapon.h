@@ -23,8 +23,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wapon")
+	FName MuzzleSocketName = "MuzzleSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float TraceMaxDistance = 1500.0f;
+	
+	void MakeShot();
 
 };

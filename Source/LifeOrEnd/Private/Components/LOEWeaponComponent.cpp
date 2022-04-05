@@ -32,6 +32,7 @@ void ULOEWeaponComponent::AttachWeaponToSocket(ALOEBaseWeapon* Weapon)
 	if(!Character || !Weapon) return;
 	const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
 	Weapon->AttachToComponent(Character->GetMesh(), AttachmentRule, WeaponAttachPointName);
+	Weapon->SetOwner(Character);
 }
 
 void ULOEWeaponComponent::Fire()
