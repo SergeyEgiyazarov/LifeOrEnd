@@ -93,6 +93,7 @@ void ALOECharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ALOECharacter::StopCrouch);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ALOECharacter::InteractWithObject);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &ULOEWeaponComponent::Fire);
 }
 
 void ALOECharacter::MoveForward(float Amount)

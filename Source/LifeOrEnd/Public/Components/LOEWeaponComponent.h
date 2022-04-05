@@ -19,15 +19,19 @@ public:
 	ULOEWeaponComponent();
 
 protected:
-	// Called when the game starts
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	FName WeaponAttachPointName = "GripPoint";
+	
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY()
-	ALOEBaseWeapon* CurrentWeapon = nullptr;
-
 	void SpawnWeapon(const ULOEBaseItem* ItemWeapon);
 
+	void Fire();
+
 private:
+	UPROPERTY()
+	ALOEBaseWeapon* CurrentWeapon = nullptr;
+	
 	void AttachWeaponToSocket(ALOEBaseWeapon* Weapon);
 };

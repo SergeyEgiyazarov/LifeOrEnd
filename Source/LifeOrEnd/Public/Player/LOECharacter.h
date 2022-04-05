@@ -77,9 +77,6 @@ public:
 	
 	EMovementState GetMovementState() const;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-	ALOEBaseWeapon* CurrentWeapon;
-
 	//Spawn weapon and attach to socket
 	UFUNCTION(BlueprintCallable)
 	void SpawnWeaponToSocket(const ULOEBaseItem* ItemWeapon);

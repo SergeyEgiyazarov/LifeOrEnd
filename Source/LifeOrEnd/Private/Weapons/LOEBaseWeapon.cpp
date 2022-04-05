@@ -4,6 +4,8 @@
 #include "Weapons/LOEBaseWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(WeaponLog, All, All);
+
 // Sets default values
 ALOEBaseWeapon::ALOEBaseWeapon()
 {
@@ -21,4 +23,9 @@ void ALOEBaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void ALOEBaseWeapon::Fire()
+{
+	UE_LOG(WeaponLog, Display, TEXT("I can fire!"));
 }
